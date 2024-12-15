@@ -10,6 +10,7 @@ import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.Shot;
 import com.itmo.backend.model.entity.User;
 import com.itmo.backend.services.AreaCheckService;
+import com.itmo.backend.utils.JSONUtil;
 import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -43,10 +44,8 @@ public class ShotsController {
                 return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
             }
             List<Shot> shots = shotDAO.getUserShots(user);
-            Gson gson = new Gson();
-            String resp = gson.toJson(shots);
 
-            return Response.ok().entity(resp).build();
+            return Response.ok().entity(JSONUtil.convertShotListToJSON(shots)).build();
         } catch (IncorrectJWTException e) {
             return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
         }

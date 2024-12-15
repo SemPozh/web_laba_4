@@ -236,7 +236,7 @@ input.incorrect{
     display: inline-block;
     margin-right: 10px;
 }
-.form_radio_btn input[type=submit] {
+.form_radio_btn input[type=button] {
     display: none;
 }
 .form_radio_btn label {
@@ -250,7 +250,7 @@ input.incorrect{
 }
 
 /* Checked */
-.form_radio_btn input[type=submit].checked_true + label {
+.form_radio_btn input[type=button].choosen + label {
     background: #ffffff;
     color: black;
 }
@@ -271,7 +271,7 @@ input.incorrect{
     text-align: center;
     color: #f74a81;
     font-size: 17px;
-    display: none;
+    /* display: none; */
     font-weight: bold;
 }
 
@@ -288,7 +288,7 @@ input.incorrect{
 
 }
 
-form input[type="submit"].submit_button{
+div input[type="button"].submit_button{
     width: 200px;
     height: 40px;
     font-size: 20px;

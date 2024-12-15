@@ -8,7 +8,6 @@ import ResultsTable from '@/components/ResultsTable.vue';
 <template>
     <div id="main-table">
         <MainForm/>
-        <Graph/>
     </div>
     <ClearButton/>
     <ResultsTable/>
