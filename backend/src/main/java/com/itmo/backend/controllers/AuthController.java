@@ -6,6 +6,7 @@ import com.itmo.backend.model.entity.User;
 import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.OPTIONS;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
@@ -45,7 +46,7 @@ public class AuthController {
         if (!user.getPasswordHash().equals(userDTO.getPassword())){
             return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Incorrect password'}").build();
         }
-        NewCookie jwtCookie = new NewCookie("jwt_auth", jwtUtil.generateJWT(userDTO.getUsername()));
-        return Response.ok().entity("{'success': false, 'message':'You were successfully authorized!'}").cookie(jwtCookie).build();
+        NewCookie jwtCookie = new NewCookie("jwt_auth", jwtUtil.generateJWT(userDTO.getUsername()), "/", null, null, -1, false);
+        return Response.ok().entity("{'success': true, 'message':'You were successfully authorized!'}").cookie(jwtCookie).build();
     }
 }

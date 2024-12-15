@@ -11,7 +11,7 @@ import jakarta.ejb.Singleton;
 @Singleton
 public class JWTUtil {
     public String generateJWT(String username){
-        return JWT.create().withClaim("username", username).sign(Algorithm.HMAC256(AuthConfig.SECRET_JWT_KEY));
+        return JWT.create().withSubject(username).sign(Algorithm.HMAC256(AuthConfig.SECRET_JWT_KEY));
     }
 
     public String parseUsernameFromJWT(String jwt) throws IncorrectJWTException {

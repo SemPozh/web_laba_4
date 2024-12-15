@@ -1,5 +1,6 @@
 package com.itmo.backend.controllers;
 
+import com.google.gson.Gson;
 import com.itmo.backend.exceptions.IncorrectJWTException;
 import com.itmo.backend.exceptions.ValidationException;
 import com.itmo.backend.model.dao.ShotDAO;
@@ -32,13 +33,20 @@ public class ShotsController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getUserShots(@CookieParam("jwt_auth") Cookie jwtCookie){
         try {
+            if (jwtCookie==null){
+                throw new IncorrectJWTException("JWT required!");
+            }
             String username = jwtUtil.parseUsernameFromJWT(jwtCookie.getValue());
+            System.out.println(username);
             User user = userDAO.getUserByUsername(username);
             if (user==null){
                 return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
             }
             List<Shot> shots = shotDAO.getUserShots(user);
-            return Response.ok().entity("{'success':true, 'points':[]}").build();
+            Gson gson = new Gson();
+            String resp = gson.toJson(shots);
+
+            return Response.ok().entity(resp).build();
         } catch (IncorrectJWTException e) {
             return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
         }

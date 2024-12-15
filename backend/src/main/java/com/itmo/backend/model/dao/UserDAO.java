@@ -32,7 +32,7 @@ public class UserDAO {
             user = (User) session.createQuery("from User where username=:username").setParameter("username", username).getSingleResult();
         } catch (Exception e){
             session.close();
-            e.printStackTrace();
+            return null;
         }
         session.close();
         return user;

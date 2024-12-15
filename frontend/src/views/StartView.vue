@@ -1,10 +1,10 @@
 <script setup>
-    import Clock from '../components/Clock.vue';
+    import AuthForm from '@/components/AuthForm.vue';
 </script>
 
 <template>
     <div class="main">
-        <Clock />
+        <AuthForm />
     </div>
 </template>
 

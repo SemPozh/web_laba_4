@@ -1,5 +1,4 @@
 package com.itmo.backend.utils;
 
-public class AuthUtil {
-
+public class JSONUtil {
 }
