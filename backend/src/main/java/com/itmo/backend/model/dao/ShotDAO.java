@@ -33,4 +33,15 @@ public class ShotDAO {
         transaction.commit();
         session.close();
     }
+
+    public void clearShots(User user){
+        SessionFactory sessionFactory = sessionFactoryManager.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        session.createQuery("delete from Shot x where x.user = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+        transaction.commit();
+        session.close();
+    }
 }

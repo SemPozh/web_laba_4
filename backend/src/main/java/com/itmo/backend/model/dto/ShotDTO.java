@@ -9,7 +9,6 @@ public class ShotDTO {
     public ShotDTO(){
 
     }
-
     public int getX() {
         return x;
     }

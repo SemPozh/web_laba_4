@@ -250,7 +250,7 @@ input.incorrect{
 }
 
 /* Checked */
-.form_radio_btn input[type=button].choosen + label {
+.form_radio_btn input[type=button].selected + label {
     background: #ffffff;
     color: black;
 }

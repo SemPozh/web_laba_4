@@ -1,48 +1,79 @@
 <template>
-  <div class="gui-element" id="input-block">
-    <div id="form">
-      <label id="x-label">Выберите X-координату</label>
-      <div>
+  <div id="main-table">
+    <div class="gui-element" id="input-block">
+      <div id="form">
+        <label id="x-label">Выберите X-координату</label>
         <div>
-          <div class="form_radio_btn" v-for="value in xValues" :key="value">
-            <input type="button" :value="value" class="r-choose_input checkbox_x" name="x" :id="'x-' + value"
-                   :class="{ choosen: choosenX === value }" @click="handleXClick(value)">
-            <label :for="'x-' + value">{{ value }}</label>
+          <div>
+            <div class="form_radio_btn" v-for="value in xValues" :key="value">
+              <input type="button" :value="value" class="r-choose_input checkbox_x" name="x" :id="'x-' + value"
+                     :class="{ selected: selectedX === value }" @click="handleXClick(value)">
+              <label :for="'x-' + value">{{ value }}</label>
+            </div>
           </div>
         </div>
-      </div>
-      <label id="y-label" for="y-inp">Выберите Y-координату</label>
-      <div>
-        <input type="text" placeholder="Введите Y в (-3...3)" class="y-choose_input" id="y-inp" name="y" @input="handleYInputChange"/>
-      </div>
-      <label id="r-label">Выберите R</label>
-      <div>
+        <label id="y-label" for="y-inp">Выберите Y-координату</label>
         <div>
-          <div class="form_radio_btn" v-for="value in rValues" :key="value">
-            <input type="button" :value="value" class="r-choose_input checkbox_x" name="r" :id="'r-' + value"
-                   @click="handleRClick(value)" :class="{ choosen: choosenR === value }">
-            <label :for="'r-' + value">{{ value }}</label>
+          <input type="text" placeholder="Введите Y в (-3...3)" class="y-choose_input" id="y-inp" name="y"
+                 @input="handleYInputChange"/>
+        </div>
+        <label id="r-label">Выберите R</label>
+        <div>
+          <div>
+            <div class="form_radio_btn" v-for="value in rValues" :key="value">
+              <input type="button" :value="value" class="r-choose_input checkbox_x" name="r" :id="'r-' + value"
+                     @click="handleRClick(value)" :class="{ selected: selectedR === value }">
+              <label :for="'r-' + value">{{ value }}</label>
+            </div>
           </div>
         </div>
+        <input type="button" value="Отправить" class="submit_button" id="submitButton" @click="handleFormSubmit"/>
+        <p class="error_text" id="Incorrect">{{ errorMessage }}</p>
       </div>
-      <input type="button" value="Отправить" class="submit_button" id="submitButton" @click="handleFormSubmit"/>
-      <p class="error_text" id="Incorrect">{{errorMessage}}</p>
+    </div>
+    <div class="gui-element" id="visualization-block">
+      <div id="frame">
+        <canvas id="figureCanvas" width="100" height="100" @click="handleCanvasClick"/>
+      </div>
     </div>
   </div>
-  <div class="gui-element" id="visualization-block">
-    <div id="frame">
-      <canvas id="figureCanvas" width="100" height="100" @click="handleCanvasClick"/>
+  <div id="clearButton">
+    <input type="button" value="Очистить таблицу" @click="handleClearButtonClick">
+  </div>
+  <div id="data-table">
+    <div class="gui-element" id="data-block">
+      <div>
+        <table id="results">
+          <thead>
+          <tr>
+            <th>X</th>
+            <th>Y</th>
+            <th>R</th>
+            <th>Попадание</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="shot in shots" :key="shot.id">
+            <td>{{ shot.x }}</td>
+            <td>{{ shot.y }}</td>
+            <td>{{ shot.r }}</td>
+            <td>{{ shot.result ? 'Попадание' : 'Промах' }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+
 export default {
   data() {
     return {
-      choosenR: null,
-      choosenX: null,
+      selectedR: null,
+      selectedX: null,
       xValues: [-4, -3, -2, -1, 0, 1, 2, 3, 4],
       rValues: [-4, -3, -2, -1, 0, 1, 2, 3, 4],
       canvas: null,
@@ -50,10 +81,13 @@ export default {
       intervalSize: null,
       y: null,
       yInput: null,
-      errorMessage: ""
+      errorMessage: "",
+      shots: []
     }
   },
   mounted() {
+    this.getUserShots();
+
     this.yInput = document.getElementById('y-inp');
 
     this.canvas = document.getElementById('figureCanvas');
@@ -65,57 +99,127 @@ export default {
   },
   methods: {
     handleRClick(value) {
-      this.choosenR = value;
-      if (value > 0){
+      this.selectedR = value;
+      if (value > 0) {
         this.drawArea(value);
+        for (let shot of this.shots){
+            if (shot.r==value){
+                this.drawPoint(shot.x, shot.y, shot.result);
+            }
+        }
       } else {
         this.clearCanvas();
         this.drawCoordinateLines();
       }
     },
     handleXClick(value) {
-      this.choosenX = value;
+      this.selectedX = value;
     },
-    handleCanvasClick(){
-
-    },
-    async handleFormSubmit(){
-        if (this.choosenX==null){
-            this.errorMessage = "Не выбрана координата X!"
-            return;
-        }
-        if (this.choosenR==null){
+    async handleCanvasClick(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+        let xMapped = (x - this.canvas.width / 2) / this.intervalSize;
+        let yMapped = (this.canvas.height / 2 - y) / this.intervalSize;
+        if (this.selectedR == null) {
             this.errorMessage = "Не задан параметр R!"
             return;
         }
-        if (this.y==null){
-            this.errorMessage = "Не задана координата Y!"
+        if (this.selectedR <= 0) {
+            this.errorMessage = "R должен быть положительным!"
             return;
         }
-        if (this.choosenR <= 0){
-            this.errorMessage = "R должен быть положительным!"
-        }
+        try{
         const response = await axios.post('/backend/api/shots/add', {
-            "x": this.choosenX,
+            "x": xMapped,
+            "y": yMapped,
+            "r": this.selectedR,
+            "byAreaClick": true
+        });
+        this.shots.push({
+            "x": xMapped,
+            "y": yMapped,
+            "r": this.selectedR,
+            "result": response.data.result
+        });
+        this.drawPoint(xMapped, yMapped, response.data.result   );
+      } catch (error){
+        this.errorMessage = error.response.data.message;
+      }
+    },
+    async handleFormSubmit() {
+      if (this.selectedX == null) {
+        this.errorMessage = "Не выбрана координата X!"
+        return;
+      }
+      if (this.selectedR == null) {
+        this.errorMessage = "Не задан параметр R!"
+        return;
+      }
+      if (this.y == null) {
+        this.errorMessage = "Координата Y не задана или некорректна"
+        return;
+      }
+      if (this.selectedR <= 0) {
+        this.errorMessage = "R должен быть положительным!"
+        return;
+      }
+      try{
+        const response = await axios.post('/backend/api/shots/add', {
+            "x": this.selectedX,
             "y": this.y,
-            "r": this.choosenR,
+            "r": this.selectedR,
             "byAreaClick": false
         });
-        console.log(response);
+        this.shots.push({
+            "x": this.selectedX,
+            "y": this.y,
+            "r": this.selectedR,
+            "result": response.data.result
+        });
+        this.drawPoint(this.selectedX, this.y, response.data.result);
+      } catch (error){
+        this.errorMessage = error.response.data.message;
+      }
     },
-    handleYInputChange(){
+    async getUserShots(){
+        try{
+            const response = await axios.get("/backend/api/shots");
+            for (let shot of response.data){
+                this.shots.push({
+                    "x": shot.x,
+                    "y": shot.y,
+                    "r": shot.r,
+                    "result": shot.result,
+                });
+            }
+        } catch(error){
+            console.error(error);
+        }
+    },
+    async handleClearButtonClick(){
+        try{
+            const response = await axios.delete("/backend/api/shots/clear");
+            this.shots.length = 0;
+            this.clearCanvas();
+            this.drawArea(this.selectedR);
+        } catch (error){
+            console.error(error);
+        }
+    },
+    handleYInputChange() {
       const regex = /^-?[0-2](\.\d+)?$/;
       // Matches a number between 0 and 2, which can be negative,
       // and may have an optional decimal part with up to 16 digits after the decimal point.
       // Examples: "0", "1", "2", "-1.5", "0.123", "2.1234567890123456" (valid)
       // Examples: "3", "-3.12345678901234567" (invalid)
 
-      if (this.yInput.value===""){
+      if (this.yInput.value === "") {
         this.yInput.classList.remove("incorrect");
         this.y = null;
         return
       }
-      if (regex.test(this.yInput.value)){
+      if (regex.test(this.yInput.value)) {
         this.yInput.classList.remove("incorrect");
         this.y = parseFloat(this.yInput.value);
       } else {
@@ -144,7 +248,7 @@ export default {
       this.ctx.beginPath()
       this.ctx.moveTo(this.canvas.width / 2 - this.intervalSize * r, this.canvas.height / 2);
       this.ctx.lineTo(this.canvas.width / 2, this.canvas.height / 2);
-      this.ctx.lineTo(this.canvas.width / 2, this.canvas.height / 2 + this.intervalSize * (r/2));
+      this.ctx.lineTo(this.canvas.width / 2, this.canvas.height / 2 + this.intervalSize * (r / 2));
       this.ctx.closePath();
       this.ctx.fill();
 //
@@ -213,9 +317,6 @@ export default {
     },
 
     drawPoint(x, y, result) {
-      console.log(x)
-      console.log(y)
-      console.log(result);
       if (result) {
         this.ctx.fillStyle = "#2fc908";
       } else {
