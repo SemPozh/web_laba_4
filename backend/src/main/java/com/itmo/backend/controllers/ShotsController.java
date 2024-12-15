@@ -1,12 +1,14 @@
 package com.itmo.backend.controllers;
 
 import com.itmo.backend.exceptions.IncorrectJWTException;
+import com.itmo.backend.exceptions.ValidationException;
 import com.itmo.backend.model.dao.ShotDAO;
 import com.itmo.backend.model.dao.UserDAO;
 import com.itmo.backend.model.dto.ShotDTO;
 import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.Shot;
 import com.itmo.backend.model.entity.User;
+import com.itmo.backend.services.AreaCheckService;
 import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -45,7 +47,27 @@ public class ShotsController {
     @POST
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addShot(ShotDTO shotDTO){
-        return null;
+    public Response addShot(@CookieParam("jwt_auth") Cookie jwtCookie, ShotDTO shotDTO){
+        try {
+            String username = jwtUtil.parseUsernameFromJWT(jwtCookie.getValue());
+            User user = userDAO.getUserByUsername(username);
+            if (user==null){
+                return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
+            }
+            Shot shot = new Shot();
+            boolean result = AreaCheckService.calculateResult(shotDTO.getX(), shotDTO.getY(), shotDTO.getR(), shotDTO.isByAreaClick());
+            shot.setX(shotDTO.getX());
+            shot.setY(shotDTO.getY());
+            shot.setR(shotDTO.getR());
+            shot.setByAreaClick(shotDTO.isByAreaClick());
+            shot.setUser(user);
+            shot.setResult(result);
+            shotDAO.addShot(shot);
+            return Response.ok().entity("{'success':true, 'message':'shot was successfully added', 'result':true}").build();
+        } catch (IncorrectJWTException e) {
+            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
+        } catch (ValidationException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
+        }
     }
 }

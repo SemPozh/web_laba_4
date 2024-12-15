@@ -17,6 +17,8 @@ public class Shot {
     private int r;
     @Column(name = "result")
     private boolean result;
+    @Column(name = "byAreaClick")
+    private boolean byAreaClick;
     @ManyToOne(cascade = CascadeType.REMOVE)
     private User user;
 
@@ -66,6 +68,14 @@ public class Shot {
 
     public User getUser() {
         return user;
+    }
+
+    public boolean isByAreaClick() {
+        return byAreaClick;
+    }
+
+    public void setByAreaClick(boolean byAreaClick) {
+        this.byAreaClick = byAreaClick;
     }
 
     public void setUser(User user) {

@@ -4,6 +4,7 @@ public class ShotDTO {
     private int x;
     private double y;
     private int r;
+    private boolean byAreaClick;
 
     public ShotDTO(){
 
@@ -31,5 +32,13 @@ public class ShotDTO {
 
     public void setR(int r) {
         this.r = r;
+    }
+
+    public boolean isByAreaClick() {
+        return byAreaClick;
+    }
+
+    public void setByAreaClick(boolean byAreaClick) {
+        this.byAreaClick = byAreaClick;
     }
 }
