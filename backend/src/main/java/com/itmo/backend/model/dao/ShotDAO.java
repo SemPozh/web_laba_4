@@ -1,5 +1,6 @@
 package com.itmo.backend.model.dao;
 
+import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.Shot;
 import com.itmo.backend.model.entity.User;
 import com.itmo.backend.utils.SessionFactoryManager;
@@ -9,7 +10,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Stateless

@@ -283,8 +283,8 @@ input.incorrect{
 
 #frame{
     margin: 0 auto;
-    height: 400px;
-    width: 400px;
+    height: 350px;
+    width: 350px;
 
 }
 
@@ -358,8 +358,9 @@ table#results tbody tr td:last-child {
 #footer{
     display: flex;
     grid-template-columns: 80% 20%;
-    /*height: 124px;*/
     padding: 0 20px;
+    align-items: end;
+    padding-bottom: 10px;
 }
 
 #footer p{
@@ -428,7 +429,7 @@ a.back_button{
 }
 
 #clearButton{
-    margin: 0 15%;
+    margin: 10px 15%;
 }
 
 #clearButton input[type="button"]{
@@ -469,11 +470,75 @@ form input[type="submit"].submit_button:disabled:hover{
     padding: 5px;
 }
 
+.auth_btn_wrapper{
+    display: flex;
+    gap: 5px;
+}
+
 .auth_btn{
     background-color: black;
     color: #fff;
     padding: 10px;
     border-radius: 10px;
-    width: 49%;
-    margin-right: 1%;
+    width: 50%;
+}
+
+#header-navigation button{
+    background-color: black;
+    width: 100%;
+    padding: 5px 0;
+    border-radius: 6px;
+}
+
+
+/* MEDIA QUERIES */
+
+/* 825 - 1101 */
+@media screen and (max-width: 1101px){
+    #main-table{
+        flex-direction: column;
+    }
+
+    #input-block, #visualization-block{
+        width: 100%;
+    }
+
+    #header-title{
+        padding-left: 0px;
+        text-align: center;
+    }
+
+    .auth_btn{
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 825px){
+    #header-title{ 
+        font-size: 25px;
+    }
+
+    #header-bio{
+        font-size: 12px;
+        text-align: center;
+    }
+    #header{
+        grid-template-columns: auto;
+        grid-template-rows: max-content;
+    }
+    #header-navigation{
+        text-align: center;
+    }
+    #frame{
+        width: 250px;
+        height: 250px;
+    }
+
+    .auth_btn_wrapper{
+        flex-direction: column;
+    }
+
+    .auth_btn{
+        width: 100%;
+    }
 }

@@ -1,11 +1,17 @@
 package com.itmo.backend.model.dto;
 
-public class UserDTO {
+import java.security.Principal;
+
+public class UserDTO implements Principal {
     private String username;
     private String password;
 
     public UserDTO(){
 
+    }
+
+    public UserDTO(String username){
+        this.username = username;
     }
 
     public String getUsername() {
@@ -22,5 +28,10 @@ public class UserDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 }

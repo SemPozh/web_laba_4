@@ -10,7 +10,7 @@ public class Shot {
     private Long id;
 
     @Column(name = "x")
-    private int x;
+    private double x;
     @Column(name = "y")
     private double y;
     @Column(name="r")
@@ -34,11 +34,11 @@ public class Shot {
         this.id = id;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 

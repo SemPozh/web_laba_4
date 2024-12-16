@@ -1,6 +1,6 @@
 package com.itmo.backend.controllers;
 
-import com.google.gson.Gson;
+
 import com.itmo.backend.exceptions.IncorrectJWTException;
 import com.itmo.backend.exceptions.ValidationException;
 import com.itmo.backend.model.dao.ShotDAO;
@@ -14,9 +14,7 @@ import com.itmo.backend.utils.JSONUtil;
 import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 
 import java.util.List;
 
@@ -30,36 +28,25 @@ public class ShotsController {
     @EJB
     private ShotDAO shotDAO;
 
+    @Context
+    private SecurityContext securityContext;
+
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getUserShots(@CookieParam("jwt_auth") Cookie jwtCookie){
-        try {
-            if (jwtCookie==null){
-                throw new IncorrectJWTException("JWT required!");
-            }
-            String username = jwtUtil.parseUsernameFromJWT(jwtCookie.getValue());
-            System.out.println(username);
-            User user = userDAO.getUserByUsername(username);
-            if (user==null){
-                return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
-            }
-            List<Shot> shots = shotDAO.getUserShots(user);
-            return Response.ok().entity(JSONUtil.convertShotListToJSON(shots)).build();
-        } catch (IncorrectJWTException e) {
-            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
-        }
+    public Response getUserShots() {
+        String username = securityContext.getUserPrincipal().getName();
+        User user = userDAO.getUserByUsername(username);
+        List<Shot> shots = shotDAO.getUserShots(user);
+        return Response.ok().entity(JSONUtil.convertShotListToJSON(shots)).build();
     }
 
     @POST
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addShot(@CookieParam("jwt_auth") Cookie jwtCookie, ShotDTO shotDTO){
-        try {
-            String username = jwtUtil.parseUsernameFromJWT(jwtCookie.getValue());
+    public Response addShot(ShotDTO shotDTO) {
+        try{
+            String username = securityContext.getUserPrincipal().getName();
             User user = userDAO.getUserByUsername(username);
-            if (user==null){
-                return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
-            }
             Shot shot = new Shot();
             boolean result = AreaCheckService.calculateResult(shotDTO.getX(), shotDTO.getY(), shotDTO.getR(), shotDTO.isByAreaClick());
             shot.setX(shotDTO.getX());
@@ -69,27 +56,18 @@ public class ShotsController {
             shot.setUser(user);
             shot.setResult(result);
             shotDAO.addShot(shot);
-            return Response.ok().entity("{'success':true, 'message':'shot was successfully added', 'result':true}").build();
-        } catch (IncorrectJWTException e) {
-            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
+            return Response.ok().entity(JSONUtil.generateShotResultJSON(shot)).build();
         } catch (ValidationException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(JSONUtil.generateResponseMessage(e.getMessage())).build();
         }
     }
 
     @DELETE
     @Path("/clear")
-    public Response clearShots(@CookieParam("jwt_auth") Cookie jwtCookie){
-        try {
-            String username = jwtUtil.parseUsernameFromJWT(jwtCookie.getValue());
-            User user = userDAO.getUserByUsername(username);
-            if (user==null){
-                return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Can't find your user, try to logout and sign in again'}").build();
-            }
-            shotDAO.clearShots(user);
-            return Response.ok().entity("{'success':true, 'message':'shots were cleared'}").build();
-        } catch (IncorrectJWTException e) {
-            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'"+e.getMessage()+"'}").build();
-        }
+    public Response clearShots() {
+        String username = securityContext.getUserPrincipal().getName();
+        User user = userDAO.getUserByUsername(username);
+        shotDAO.clearShots(user);
+        return Response.ok().entity(JSONUtil.generateResponseMessage("Shots were cleared")).build();
     }
 }

@@ -1,7 +1,7 @@
 package com.itmo.backend.model.dto;
 
 public class ShotDTO {
-    private int x;
+    private double x;
     private double y;
     private int r;
     private boolean byAreaClick;
@@ -9,11 +9,11 @@ public class ShotDTO {
     public ShotDTO(){
 
     }
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 

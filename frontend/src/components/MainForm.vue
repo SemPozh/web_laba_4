@@ -137,12 +137,12 @@ export default {
             "byAreaClick": true
         });
         this.shots.push({
-            "x": xMapped,
-            "y": yMapped,
-            "r": this.selectedR,
+            "x": response.data.x,
+            "y": response.data.y,
+            "r": response.data.r,
             "result": response.data.result
         });
-        this.drawPoint(xMapped, yMapped, response.data.result   );
+        this.drawPoint(response.data.x, response.data.y, response.data.result);
       } catch (error){
         this.errorMessage = error.response.data.message;
       }
@@ -177,7 +177,7 @@ export default {
             "r": this.selectedR,
             "result": response.data.result
         });
-        this.drawPoint(this.selectedX, this.y, response.data.result);
+        this.drawPoint(response.data.x, response.data.y, response.data.result);
       } catch (error){
         this.errorMessage = error.response.data.message;
       }

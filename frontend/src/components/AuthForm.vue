@@ -2,8 +2,10 @@
   <div id="authForm">
     <input type="text" placeholder="Имя пользователя" name="login" class="auth_input" v-model="username">
     <input type="text" placeholder="Имя пользователя" name="login" class="auth_input" v-model="password">
-    <input type="button" value="Войти" class="auth_btn" @click="handleLogin">
-    <input type="button" value="Зарегистрироваться" class="auth_btn" @click="handleRegister">
+    <div class="auth_btn_wrapper">
+        <input type="button" value="Войти" class="auth_btn" @click="handleLogin">
+        <input type="button" value="Зарегистрироваться" class="auth_btn" @click="handleRegister"> 
+    </div>
     <p class="error_text">{{ errorMessage }}</p>
     <p class="success_text">{{ errorMessage }}</p>
   </div>

@@ -3,6 +3,7 @@ package com.itmo.backend.controllers;
 import com.itmo.backend.model.dao.UserDAO;
 import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.User;
+import com.itmo.backend.utils.JSONUtil;
 import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.Consumes;
@@ -29,10 +30,10 @@ public class AuthController {
         user.setUsername(userDTO.getUsername());
         user.setPasswordHash(userDTO.getPassword());
         if (userDAO.getUserByUsername(userDTO.getUsername())!=null){
-            return Response.status(Response.Status.CONFLICT).entity("{'success': false, 'message':'User with this username already exists'}").build();
+            return Response.status(Response.Status.CONFLICT).entity(JSONUtil.generateResponseMessage("User with this username already exists")).build();
         }
         userDAO.addUser(user);
-        return Response.ok().entity("{\"success\": true, \"message\":\"User created\"}").build();
+        return Response.ok().entity(JSONUtil.generateResponseMessage("User created")).build();
     }
 
     @POST
@@ -41,12 +42,12 @@ public class AuthController {
     public Response login(UserDTO userDTO){
         User user = userDAO.getUserByUsername(userDTO.getUsername());
         if (user==null){
-            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'No user with such username'}").build();
+            return Response.status(Response.Status.FORBIDDEN).entity(JSONUtil.generateResponseMessage("No user with such username")).build();
         }
         if (!user.getPasswordHash().equals(userDTO.getPassword())){
-            return Response.status(Response.Status.FORBIDDEN).entity("{'success': false, 'message':'Incorrect password'}").build();
+            return Response.status(Response.Status.FORBIDDEN).entity(JSONUtil.generateResponseMessage("Incorrect password")).build();
         }
         NewCookie jwtCookie = new NewCookie("jwt_auth", jwtUtil.generateJWT(userDTO.getUsername()), "/", null, null, -1, false);
-        return Response.ok().entity("{'success': true, 'message':'You were successfully authorized!'}").cookie(jwtCookie).build();
+        return Response.ok().entity(JSONUtil.generateResponseMessage("You were successfully authorized!")).cookie(jwtCookie).build();
     }
 }
