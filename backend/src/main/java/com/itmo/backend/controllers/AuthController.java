@@ -5,11 +5,9 @@ import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.User;
 import com.itmo.backend.utils.JSONUtil;
 import com.itmo.backend.utils.JWTUtil;
+import com.itmo.backend.utils.PasswordManager;
 import jakarta.ejb.EJB;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.OPTIONS;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -19,16 +17,14 @@ public class AuthController {
     @EJB
     private UserDAO userDAO;
 
-    @EJB
-    private JWTUtil jwtUtil;
-
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response register(UserDTO userDTO){
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPasswordHash(userDTO.getPassword());
+        user.setPasswordHash(PasswordManager.hashPassword(userDTO.getPassword()));
         if (userDAO.getUserByUsername(userDTO.getUsername())!=null){
             return Response.status(Response.Status.CONFLICT).entity(JSONUtil.generateResponseMessage("User with this username already exists")).build();
         }
@@ -39,15 +35,16 @@ public class AuthController {
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response login(UserDTO userDTO){
         User user = userDAO.getUserByUsername(userDTO.getUsername());
         if (user==null){
             return Response.status(Response.Status.FORBIDDEN).entity(JSONUtil.generateResponseMessage("No user with such username")).build();
         }
-        if (!user.getPasswordHash().equals(userDTO.getPassword())){
+        if (!PasswordManager.checkPasswordHash(userDTO.getPassword(), user.getPasswordHash())){
             return Response.status(Response.Status.FORBIDDEN).entity(JSONUtil.generateResponseMessage("Incorrect password")).build();
         }
-        NewCookie jwtCookie = new NewCookie("jwt_auth", jwtUtil.generateJWT(userDTO.getUsername()), "/", null, null, -1, false);
+        NewCookie jwtCookie = new NewCookie("jwt_auth", JWTUtil.generateJWT(userDTO.getUsername()), "/", null, null, -1, false);
         return Response.ok().entity(JSONUtil.generateResponseMessage("You were successfully authorized!")).cookie(jwtCookie).build();
     }
 }

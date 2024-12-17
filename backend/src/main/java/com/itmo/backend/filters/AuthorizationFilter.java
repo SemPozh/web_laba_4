@@ -24,8 +24,7 @@ import java.security.Principal;
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 public class AuthorizationFilter implements ContainerRequestFilter {
-    @EJB
-    private JWTUtil jwtUtil;
+
     @EJB
     private UserDAO userDAO;
 
@@ -48,7 +47,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
         String token = authorizationCookie.getValue();
         try {
-            String username = jwtUtil.parseUsernameFromJWT(token);
+            String username = JWTUtil.parseUsernameFromJWT(token);
             User user = userDAO.getUserByUsername(username);
             if (user==null){
                 throw new IncorrectJWTException("Incorrect JWT!");

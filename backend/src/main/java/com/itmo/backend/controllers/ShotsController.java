@@ -1,12 +1,10 @@
 package com.itmo.backend.controllers;
 
 
-import com.itmo.backend.exceptions.IncorrectJWTException;
 import com.itmo.backend.exceptions.ValidationException;
 import com.itmo.backend.model.dao.ShotDAO;
 import com.itmo.backend.model.dao.UserDAO;
 import com.itmo.backend.model.dto.ShotDTO;
-import com.itmo.backend.model.dto.UserDTO;
 import com.itmo.backend.model.entity.Shot;
 import com.itmo.backend.model.entity.User;
 import com.itmo.backend.services.AreaCheckService;
@@ -20,8 +18,6 @@ import java.util.List;
 
 @Path("/shots")
 public class ShotsController {
-    @EJB
-    private JWTUtil jwtUtil;
 
     @EJB
     private UserDAO userDAO;
@@ -32,7 +28,7 @@ public class ShotsController {
     private SecurityContext securityContext;
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getUserShots() {
         String username = securityContext.getUserPrincipal().getName();
         User user = userDAO.getUserByUsername(username);
@@ -43,6 +39,7 @@ public class ShotsController {
     @POST
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addShot(ShotDTO shotDTO) {
         try{
             String username = securityContext.getUserPrincipal().getName();
@@ -64,6 +61,7 @@ public class ShotsController {
 
     @DELETE
     @Path("/clear")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response clearShots() {
         String username = securityContext.getUserPrincipal().getName();
         User user = userDAO.getUserByUsername(username);

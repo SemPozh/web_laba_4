@@ -2,74 +2,60 @@
   <div id="main-table">
     <div class="gui-element" id="input-block">
       <div id="form">
+
         <label id="x-label">Выберите X-координату</label>
         <div>
           <div>
-            <div class="form_radio_btn" v-for="value in xValues" :key="value">
-              <input type="button" :value="value" class="r-choose_input checkbox_x" name="x" :id="'x-' + value"
-                     :class="{ selected: selectedX === value }" @click="handleXClick(value)">
-              <label :for="'x-' + value">{{ value }}</label>
-            </div>
+            <MainFormButton v-for="value in xValues" :key="value"
+                            :value="value"
+                            fieldName="x"
+                            :selectedField="this.selectedX"
+                            :handleClick="handleXClick"/>
           </div>
         </div>
+
         <label id="y-label" for="y-inp">Выберите Y-координату</label>
         <div>
           <input type="text" placeholder="Введите Y в (-3...3)" class="y-choose_input" id="y-inp" name="y"
                  @input="handleYInputChange"/>
         </div>
+
         <label id="r-label">Выберите R</label>
         <div>
           <div>
-            <div class="form_radio_btn" v-for="value in rValues" :key="value">
-              <input type="button" :value="value" class="r-choose_input checkbox_x" name="r" :id="'r-' + value"
-                     @click="handleRClick(value)" :class="{ selected: selectedR === value }">
-              <label :for="'r-' + value">{{ value }}</label>
-            </div>
+            <MainFormButton v-for="value in rValues" :key="value"
+                            :value="value"
+                            fieldName="r"
+                            :selectedField="this.selectedR"
+                            :handleClick="handleRClick"/>
           </div>
         </div>
         <input type="button" value="Отправить" class="submit_button" id="submitButton" @click="handleFormSubmit"/>
         <p class="error_text" id="Incorrect">{{ errorMessage }}</p>
       </div>
     </div>
+    
     <div class="gui-element" id="visualization-block">
       <div id="frame">
         <canvas id="figureCanvas" width="100" height="100" @click="handleCanvasClick"/>
       </div>
     </div>
   </div>
+
   <div id="clearButton">
     <input type="button" value="Очистить таблицу" @click="handleClearButtonClick">
   </div>
-  <div id="data-table">
-    <div class="gui-element" id="data-block">
-      <div>
-        <table id="results">
-          <thead>
-          <tr>
-            <th>X</th>
-            <th>Y</th>
-            <th>R</th>
-            <th>Попадание</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="shot in shots" :key="shot.id">
-            <td>{{ shot.x }}</td>
-            <td>{{ shot.y }}</td>
-            <td>{{ shot.r }}</td>
-            <td>{{ shot.result ? 'Попадание' : 'Промах' }}</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  
+  <DataTable :shots="this.shots"/>
 </template>
 
 <script>
 import axios from 'axios';
+import MainFormButton from './MainFormButton.vue';
+import DataTable from './DataTable.vue';
 
 export default {
+  components: {MainFormButton, DataTable},
   data() {
     return {
       selectedR: null,
@@ -102,10 +88,10 @@ export default {
       this.selectedR = value;
       if (value > 0) {
         this.drawArea(value);
-        for (let shot of this.shots){
-            if (shot.r==value){
-                this.drawPoint(shot.x, shot.y, shot.result);
-            }
+        for (let shot of this.shots) {
+          if (shot.r == value) {
+            this.drawPoint(shot.x, shot.y, shot.result);
+          }
         }
       } else {
         this.clearCanvas();
@@ -116,34 +102,34 @@ export default {
       this.selectedX = value;
     },
     async handleCanvasClick(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-        let xMapped = (x - this.canvas.width / 2) / this.intervalSize;
-        let yMapped = (this.canvas.height / 2 - y) / this.intervalSize;
-        if (this.selectedR == null) {
-            this.errorMessage = "Не задан параметр R!"
-            return;
-        }
-        if (this.selectedR <= 0) {
-            this.errorMessage = "R должен быть положительным!"
-            return;
-        }
-        try{
+      const rect = this.canvas.getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+      let xMapped = (x - this.canvas.width / 2) / this.intervalSize;
+      let yMapped = (this.canvas.height / 2 - y) / this.intervalSize;
+      if (this.selectedR == null) {
+        this.errorMessage = "Не задан параметр R!"
+        return;
+      }
+      if (this.selectedR <= 0) {
+        this.errorMessage = "R должен быть положительным!"
+        return;
+      }
+      try {
         const response = await axios.post('/backend/api/shots/add', {
-            "x": xMapped,
-            "y": yMapped,
-            "r": this.selectedR,
-            "byAreaClick": true
+          "x": xMapped,
+          "y": yMapped,
+          "r": this.selectedR,
+          "byAreaClick": true
         });
         this.shots.push({
-            "x": response.data.x,
-            "y": response.data.y,
-            "r": response.data.r,
-            "result": response.data.result
+          "x": response.data.x,
+          "y": response.data.y,
+          "r": response.data.r,
+          "result": response.data.result
         });
         this.drawPoint(response.data.x, response.data.y, response.data.result);
-      } catch (error){
+      } catch (error) {
         this.errorMessage = error.response.data.message;
       }
     },
@@ -164,48 +150,48 @@ export default {
         this.errorMessage = "R должен быть положительным!"
         return;
       }
-      try{
+      try {
         const response = await axios.post('/backend/api/shots/add', {
-            "x": this.selectedX,
-            "y": this.y,
-            "r": this.selectedR,
-            "byAreaClick": false
+          "x": this.selectedX,
+          "y": this.y,
+          "r": this.selectedR,
+          "byAreaClick": false
         });
         this.shots.push({
-            "x": this.selectedX,
-            "y": this.y,
-            "r": this.selectedR,
-            "result": response.data.result
+          "x": this.selectedX,
+          "y": this.y,
+          "r": this.selectedR,
+          "result": response.data.result
         });
         this.drawPoint(response.data.x, response.data.y, response.data.result);
-      } catch (error){
+      } catch (error) {
         this.errorMessage = error.response.data.message;
       }
     },
-    async getUserShots(){
-        try{
-            const response = await axios.get("/backend/api/shots");
-            for (let shot of response.data){
-                this.shots.push({
-                    "x": shot.x,
-                    "y": shot.y,
-                    "r": shot.r,
-                    "result": shot.result,
-                });
-            }
-        } catch(error){
-            console.error(error);
+    async getUserShots() {
+      try {
+        const response = await axios.get("/backend/api/shots");
+        for (let shot of response.data) {
+          this.shots.push({
+            "x": shot.x,
+            "y": shot.y,
+            "r": shot.r,
+            "result": shot.result,
+          });
         }
+      } catch (error) {
+        console.error(error);
+      }
     },
-    async handleClearButtonClick(){
-        try{
-            const response = await axios.delete("/backend/api/shots/clear");
-            this.shots.length = 0;
-            this.clearCanvas();
-            this.drawArea(this.selectedR);
-        } catch (error){
-            console.error(error);
-        }
+    async handleClearButtonClick() {
+      try {
+        const response = await axios.delete("/backend/api/shots/clear");
+        this.shots.length = 0;
+        this.clearCanvas();
+        this.drawArea(this.selectedR);
+      } catch (error) {
+        console.error(error);
+      }
     },
     handleYInputChange() {
       const regex = /^-?[0-2](\.\d+)?$/;

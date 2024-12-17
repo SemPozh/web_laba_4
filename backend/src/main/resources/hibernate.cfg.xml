@@ -17,7 +17,7 @@
 
         <property name="hibernate.show_sql">true</property>
 
-        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.hbm2ddl.auto">create-drop</property>
         <mapping class="com.itmo.backend.model.entity.Shot"/>
         <mapping class="com.itmo.backend.model.entity.User"/>
     </session-factory>

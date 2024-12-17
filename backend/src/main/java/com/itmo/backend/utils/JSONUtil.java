@@ -14,12 +14,10 @@ public class JSONUtil {
     }
 
     public static String generateResponseMessage(String message){
-        return String.format("{'message': %s}", message);
+        return String.format("{\"message\": \"%s\"}", message);
     }
 
     public static String generateShotResultJSON(Shot shot){
-        System.out.println(shot.getX());
-        System.out.println("HEY");
         if (shot.isByAreaClick()){
             return String.format("{\"x\": %.5f, \"y\": %.5f,\"r\": %d, \"byAreaClick\": true, \"result\": %b}", shot.getX(), shot.getY(), shot.getR(), shot.isResult());
 
