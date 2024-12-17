@@ -34,7 +34,7 @@
         <p class="error_text" id="Incorrect">{{ errorMessage }}</p>
       </div>
     </div>
-    
+
     <div class="gui-element" id="visualization-block">
       <div id="frame">
         <canvas id="figureCanvas" width="100" height="100" @click="handleCanvasClick"/>
@@ -129,6 +129,7 @@ export default {
           "result": response.data.result
         });
         this.drawPoint(response.data.x, response.data.y, response.data.result);
+        this.errorMessage = "";
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
@@ -164,6 +165,7 @@ export default {
           "result": response.data.result
         });
         this.drawPoint(response.data.x, response.data.y, response.data.result);
+        this.errorMessage = "";
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }

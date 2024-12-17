@@ -9,7 +9,6 @@ import com.itmo.backend.model.entity.Shot;
 import com.itmo.backend.model.entity.User;
 import com.itmo.backend.services.AreaCheckService;
 import com.itmo.backend.utils.JSONUtil;
-import com.itmo.backend.utils.JWTUtil;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;

@@ -1,6 +1,8 @@
 package com.itmo.backend.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "shots")
@@ -10,14 +12,20 @@ public class Shot {
     private Long id;
 
     @Column(name = "x")
+    @NotNull
     private double x;
     @Column(name = "y")
+    @NotNull
     private double y;
     @Column(name="r")
+    @Positive
+    @NotNull
     private int r;
     @Column(name = "result")
+    @NotNull
     private boolean result;
     @Column(name = "byAreaClick")
+    @NotNull
     private boolean byAreaClick;
     @ManyToOne(cascade = CascadeType.REMOVE)
     private User user;

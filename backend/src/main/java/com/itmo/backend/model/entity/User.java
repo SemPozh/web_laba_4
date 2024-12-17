@@ -1,6 +1,7 @@
 package com.itmo.backend.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
@@ -10,9 +11,11 @@ public class User {
     private Long id;
 
     @Column(name = "username")
+    @NotNull
     private String username;
 
     @Column(name = "password_hash")
+    @NotNull
     private String passwordHash;
 
     public User(){

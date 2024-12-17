@@ -59,7 +59,6 @@ export default {
           password: this.password
         }, {withCredentials: true});
         this.handleLogin();
-        // Здесь вы можете перенаправить пользователя или выполнить другие действия
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
